@@ -19,8 +19,7 @@ export const connectMongo = async (): Promise<Db> => {
 
   db = client.db(dbName);
   console.log('✅ MongoDB connected');
-  console.log(db)
-
+  
   return db;
 };
 

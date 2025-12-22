@@ -23,7 +23,8 @@
   "dependencies": {
     "@hapi/hapi": "^21.4.4",
     "dotenv": "^17.2.3",
-    "mongodb": "^6.21.0"
+    "mongodb": "^6.21.0",
+    "redis": "^5.10.0"
   },
   "devDependencies": {
     "@types/node": "^25.0.2",
