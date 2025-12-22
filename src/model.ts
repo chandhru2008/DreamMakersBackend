@@ -17,7 +17,7 @@ export enum productCategory {
     TSHIRTS,
 }
 
-interface IProduct extends IBaseConfig {
+export interface IProduct extends IBaseConfig {
     description: string;
     price: number;
     category: productCategory;

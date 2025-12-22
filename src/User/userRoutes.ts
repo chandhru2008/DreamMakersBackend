@@ -6,7 +6,7 @@ import { getUserById, getAllUsers, createUser } from './userController';
 export const userRoutes: ServerRoute[] = [
   {
     method: 'GET',
-    path: '/user/',
+    path: '/me',
     handler: getUserById,
   },
   {
