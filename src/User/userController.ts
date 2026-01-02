@@ -3,6 +3,16 @@ import { Request, ResponseToolkit } from '@hapi/hapi';
 import { getUserByIdFromDb, createUserInDb, geAlltUserFromDb } from './userService';
 import { getCache, setCache } from '../lib/cache';
 import { IUser } from '../model';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from '../lib/token';
+import {
+  isRefreshTokenValid,
+  revokeRefreshToken,
+  storeRefreshToken,
+} from '../lib/refreshTokenStore';
 
 export const getUserById = async (request: Request, h: ResponseToolkit) => {
   const { userId } = request.query;
@@ -65,3 +75,59 @@ export const getUser = async (request: Request, h: ResponseToolkit) => {
     data: user,
   }).code(200);
 };
+
+export const login = async (request: Request, h: ResponseToolkit) => {
+  const { userId } = request.payload as { userId: string };
+
+  // TODO: validate credentials with DB
+
+  const accessToken = generateAccessToken({ userId });
+
+  const { refreshToken, tokenId } = generateRefreshToken(userId);
+
+  await storeRefreshToken(userId, tokenId);
+
+  return h.response({
+    accessToken,
+    refreshToken,
+  }).code(200);
+};
+
+export const refreshToken = async (
+  request: Request,
+  h: ResponseToolkit
+) => {
+  const { refreshToken } = request.payload as { refreshToken: string };
+
+  const { userId, tokenId } = verifyRefreshToken(refreshToken);
+
+  const valid = await isRefreshTokenValid(userId, tokenId);
+  if (!valid) {
+    return h.response({ message: 'Invalid refresh token' }).code(401);
+  }
+
+  // 🔄 Rotate token
+  await revokeRefreshToken(userId, tokenId);
+
+  const newAccessToken = generateAccessToken({ userId });
+  const { refreshToken: newRefreshToken, tokenId: newTokenId } =
+    generateRefreshToken(userId);
+
+  await storeRefreshToken(userId, newTokenId);
+
+  return h.response({
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+  }).code(200);
+};
+
+export const logout = async (request: Request, h: ResponseToolkit) => {
+  const { refreshToken } = request.payload as { refreshToken: string };
+
+  const { userId, tokenId } = verifyRefreshToken(refreshToken);
+
+  await revokeRefreshToken(userId, tokenId);
+
+  return h.response({ message: 'Logged out' }).code(200);
+};
+
