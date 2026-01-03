@@ -79,25 +79,32 @@ export const getUser = async (request: Request, h: ResponseToolkit) => {
 export const login = async (request: Request, h: ResponseToolkit) => {
   const { userId } = request.payload as { userId: string };
 
-  // TODO: validate credentials with DB
-
   const accessToken = generateAccessToken({ userId });
-
   const { refreshToken, tokenId } = generateRefreshToken(userId);
 
   await storeRefreshToken(userId, tokenId);
 
-  return h.response({
-    accessToken,
-    refreshToken,
-  }).code(200);
+  return h
+    .response({ accessToken }) // JS reads this
+    .state('refresh_token', refreshToken, {
+      isHttpOnly: true,
+      isSecure: process.env.NODE_ENV === 'production',
+      isSameSite: 'Strict',
+      path: '/auth/refresh',
+      ttl: 7 * 24 * 60 * 60 * 1000,
+    })
+    .code(200);
 };
 
 export const refreshToken = async (
   request: Request,
   h: ResponseToolkit
 ) => {
-  const { refreshToken } = request.payload as { refreshToken: string };
+  const refreshToken = request.state.refresh_token;
+
+  if (!refreshToken) {
+    return h.response({ message: 'Missing refresh token' }).code(401);
+  }
 
   const { userId, tokenId } = verifyRefreshToken(refreshToken);
 
@@ -106,28 +113,37 @@ export const refreshToken = async (
     return h.response({ message: 'Invalid refresh token' }).code(401);
   }
 
-  // 🔄 Rotate token
   await revokeRefreshToken(userId, tokenId);
 
   const newAccessToken = generateAccessToken({ userId });
-  const { refreshToken: newRefreshToken, tokenId: newTokenId } =
-    generateRefreshToken(userId);
+  const {
+    refreshToken: newRefreshToken,
+    tokenId: newTokenId,
+  } = generateRefreshToken(userId);
 
   await storeRefreshToken(userId, newTokenId);
 
-  return h.response({
-    accessToken: newAccessToken,
-    refreshToken: newRefreshToken,
-  }).code(200);
+  return h
+    .response({ accessToken: newAccessToken })
+    .state('refresh_token', newRefreshToken, {
+      isHttpOnly: true,
+      isSecure: process.env.NODE_ENV === 'production',
+      isSameSite: 'Strict',
+      path: '/auth/refresh',
+      ttl: 7 * 24 * 60 * 60 * 1000,
+    });
 };
 
 export const logout = async (request: Request, h: ResponseToolkit) => {
-  const { refreshToken } = request.payload as { refreshToken: string };
+  const refreshToken = request.state.refresh_token;
 
-  const { userId, tokenId } = verifyRefreshToken(refreshToken);
+  if (refreshToken) {
+    const { userId, tokenId } = verifyRefreshToken(refreshToken);
+    await revokeRefreshToken(userId, tokenId);
+  }
 
-  await revokeRefreshToken(userId, tokenId);
-
-  return h.response({ message: 'Logged out' }).code(200);
+  return h
+    .response({ message: 'Logged out' })
+    .unstate('refresh_token')
+    .code(200);
 };
-
