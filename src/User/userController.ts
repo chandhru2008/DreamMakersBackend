@@ -1,6 +1,6 @@
 // users.controller.ts
 import { Request, ResponseToolkit } from '@hapi/hapi';
-import { getUserByIdFromDb, createUserInDb, geAlltUserFromDb } from './userService';
+import { getUserByIdFromDb, createUserInDb, geAlltUserFromDb, getUserByEmail } from './userService';
 import { getCache, setCache } from '../lib/cache';
 import { IUser } from '../model';
 import {
@@ -77,24 +77,42 @@ export const getUser = async (request: Request, h: ResponseToolkit) => {
 };
 
 export const login = async (request: Request, h: ResponseToolkit) => {
-  const { userId } = request.payload as { userId: string };
+  const { email, password } = request.payload as IUser;
+
+  const user = await getUserByEmail(email);
+
+  // 1️⃣ User not found
+  if (!user || !user._id) {
+    return h.response({ message: 'Invalid email or password' }).code(401);
+  }
+
+  // 2️⃣ Plain-text password check (TEMP)
+  if (password !== user.password) {
+    return h.response({ message: 'Invalid email or password' }).code(401);
+  }
+
+  // 3️⃣ Token payload should be explicit
+  const userId = user._id.toString();
 
   const accessToken = generateAccessToken({ userId });
   const { refreshToken, tokenId } = generateRefreshToken(userId);
 
+  // 4️⃣ Store refresh token reference
   await storeRefreshToken(userId, tokenId);
 
+  // 5️⃣ Return tokens
   return h
-    .response({ accessToken }) // JS reads this
+    .response({ accessToken }) // JS-readable
     .state('refresh_token', refreshToken, {
       isHttpOnly: true,
       isSecure: process.env.NODE_ENV === 'production',
       isSameSite: 'Strict',
       path: '/auth/refresh',
-      ttl: 7 * 24 * 60 * 60 * 1000,
+      ttl: 7 * 24 * 60 * 60 * 1000, // 7 days
     })
     .code(200);
 };
+
 
 export const refreshToken = async (
   request: Request,
