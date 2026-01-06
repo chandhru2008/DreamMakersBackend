@@ -14,6 +14,12 @@ export const getUserByIdFromDb = async (userId: string) => {
   });
 };
 
+export const getUserByEmail = async (email: string) => {
+  const db = getDb();
+  return db.collection('Users').findOne({ email });
+};
+
+
 export const createUserInDb = async (user: any) => {
   const db = getDb();
   return db.collection('Users').insertOne(user);
