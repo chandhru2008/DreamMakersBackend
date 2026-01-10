@@ -1,5 +1,20 @@
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
+const client = new OAuth2Client(process.env.CLIENT_ID);
+
+export async function verifyToken(idToken : string) {
+  const ticket = await client.verifyIdToken({
+      idToken: idToken,
+      audience: process.env.CLIENT_ID!,
+  });
+  const payload = ticket.getPayload();
+  
+  const userId = payload?.['sub'];
+  const email = payload?.['email']
+  
+  return payload;
+}
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET!;

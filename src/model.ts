@@ -8,7 +8,6 @@ interface IBaseConfig {
 export interface IUser extends IBaseConfig {
     email: string;
     password: string;
-    dummy : productCategory
 }
 
 export enum productCategory {
