@@ -6,6 +6,7 @@ import { productRoutes } from './product/productRoutes';
 import { connectRedis } from './lib/redis';
 import { googleRoutes } from './auth/googleRoutes';
 import { orderRoutes } from './order/orderRoutes';
+import { wishlistRoutes } from './wishlist/wishlistRoutes';
 dotenv.config();
 
 const init = async (): Promise<void> => {
@@ -21,6 +22,7 @@ const init = async (): Promise<void> => {
   server.route(productRoutes);
   server.route(googleRoutes);
   server.route(orderRoutes);
+  server.route(wishlistRoutes);
 
   await connectMongo();
 
