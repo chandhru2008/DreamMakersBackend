@@ -1,7 +1,8 @@
 // src/order/orderService.ts
 import { ObjectId } from 'mongodb';
 import { getDb } from '../db/mongo';
-import { CreateOrderPayload, Order } from './orderTypes';
+import { CreateOrderPayload } from './orderTypes';
+import { IOrder } from '../model';
 
 const ORDER_COLLECTION = 'Orders';
 
@@ -11,7 +12,7 @@ const ORDER_COLLECTION = 'Orders';
 export const createOrder = async (
   userId: string,
   payload: CreateOrderPayload
-): Promise<Order> => {
+): Promise<IOrder> => {
   const db = getDb();
 
   // TODO: calculate totalAmount from product service
@@ -30,28 +31,28 @@ export const createOrder = async (
   return {
       ...order,
       _id: result.insertedId.toString(),
-  } as unknown as Order;
+  } as unknown as IOrder;
 };
 
 /**
  * Get order by id
  */
-export const getOrderById = async (orderId: string): Promise<Order | null> => {
+export const getOrderById = async (orderId: string): Promise<IOrder | null> => {
   const db = getDb();
 
   return db.collection(ORDER_COLLECTION).findOne({
       _id: new ObjectId(orderId),
-  }) as unknown as Order | null;
+  }) as unknown as IOrder | null;
 };
 
 /**
  * Get orders for user
  */
-export const getOrdersByUser = async (userId: string): Promise<Order[]> => {
+export const getOrdersByUser = async (userId: string): Promise<IOrder[]> => {
   const db = getDb();
 
   return db
       .collection(ORDER_COLLECTION)
       .find({ userId })
-      .toArray() as unknown as Order[];
+      .toArray() as unknown as IOrder[];
 };

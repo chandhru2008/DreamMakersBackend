@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { getDb } from '../db/mongo';
+import { IWishlist } from '../model';
 
 export const addProductToWishlist = async (
   userId: string,
@@ -7,10 +8,10 @@ export const addProductToWishlist = async (
 ) => {
   const db = getDb();
 
-  await db.collection('wishlists').updateOne(
-    { userId: new ObjectId(userId) },
+  await db.collection<IWishlist>('wishlists').updateOne(
+    { userId: userId },
     {
-      $addToSet: { products: new ObjectId(productId) },
+      $addToSet: { products: productId },
       $setOnInsert: { createdAt: new Date() },
       $set: { updatedAt: new Date() }
     },
@@ -24,14 +25,15 @@ export const removeProductFromWishlist = async (
 ) => {
   const db = getDb();
 
-  await db.collection('wishlists').updateOne(
-    { userId: new ObjectId(userId) },
+  await db.collection<IWishlist>('wishlists').updateOne(
+    { userId: userId },
     {
-      $pull: { products: new ObjectId(productId) },
+      $pull: { products: productId },
       $set: { updatedAt: new Date() }
     }
   );
 };
+
 
 
 export const fetchWishlist = async (userId: string) => {

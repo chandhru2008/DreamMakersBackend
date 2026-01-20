@@ -21,3 +21,21 @@ export interface IProduct extends IBaseConfig {
     price: number;
     category: productCategory;
 }
+
+export interface IOrder {
+  id?: string;
+  userId: string;
+  products: IProduct[];
+  totalAmount: number;
+  status: string;
+  createdAt: Date;
+}
+
+export interface IWishlist {
+  _id?: string;
+  userId: string;
+  products: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
