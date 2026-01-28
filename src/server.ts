@@ -7,16 +7,19 @@ import { connectRedis } from './lib/redis';
 import { googleRoutes } from './auth/googleRoutes';
 import { orderRoutes } from './order/orderRoutes';
 import { wishlistRoutes } from './wishlist/wishlistRoutes';
+import { setupJwtAuth } from './auth/jwt';
 dotenv.config();
 
 const init = async (): Promise<void> => {
 
   await connectRedis();
-  
+
   const server = Hapi.server({
     port: 3000,
     host: 'localhost',
   });
+
+  await setupJwtAuth(server)
 
   server.route(userRoutes);
   server.route(productRoutes);
