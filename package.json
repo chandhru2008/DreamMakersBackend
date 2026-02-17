@@ -28,7 +28,8 @@
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^6.21.0",
     "redis": "^5.10.0",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
