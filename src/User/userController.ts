@@ -2,6 +2,7 @@
 import { Request, ResponseToolkit } from '@hapi/hapi';
 import { getUserByIdFromDb, createUserInDb, geAlltUserFromDb, getUserByEmail } from './userService';
 import { getCache, setCache } from '../lib/cache';
+import { UserSchema } from './userSchema';
 import { IUser } from '../model';
 import {
   generateAccessToken,
@@ -41,6 +42,15 @@ export const getAllUsers = async (request: Request, h: ResponseToolkit) => {
 
 export const createUser = async (request: Request, h: ResponseToolkit) => {
   try {
+
+    const payValidationResult = UserSchema.safeParse(request.payload);
+
+    if (!payValidationResult.success) {
+      return h.response({
+        message: "Invalid payload",
+        errors: payValidationResult.error.issues,
+      }).code(400);
+    }
     const user = request.payload as IUser;
     const result = await createUserInDb(user);
     return h.response(result).code(201);
