@@ -42,23 +42,41 @@ export const getAllUsers = async (request: Request, h: ResponseToolkit) => {
 
 export const createUser = async (request: Request, h: ResponseToolkit) => {
   try {
-
     const payValidationResult = UserSchema.safeParse(request.payload);
 
     if (!payValidationResult.success) {
       return h.response({
         message: "Invalid payload",
-        errors: payValidationResult.error.issues,
+        error: payValidationResult.error.issues,
       }).code(400);
     }
-    const user = request.payload as IUser;
-    const result = await createUserInDb(user);
-    return h.response(result).code(201);
+
+    const user = payValidationResult.data;
+
+    const createdUser = await createUserInDb(user);
+
+    // 🔐 Auto login after registration
+    const accessToken = generateAccessToken({ _id: createdUser.insertedId });
+    const { refreshToken, tokenId } = generateRefreshToken(createdUser.insertedId.toString());
+
+    await storeRefreshToken(createdUser.insertedId.toString(), tokenId);
+
+    return h
+      .response({ accessToken })
+      .state('refresh_token', refreshToken, {
+        isHttpOnly: true,
+        isSecure: process.env.NODE_ENV === 'production',
+        isSameSite: 'Strict',
+        path: '/auth/refresh',
+        ttl: 7 * 24 * 60 * 60 * 1000,
+      })
+      .code(201);
+
   } catch (error) {
     console.error('Error creating user:', error);
     return h.response({ error: 'Failed to create user' }).code(500);
   }
-}
+};
 
 export const getUser = async (request: Request, h: ResponseToolkit) => {
   const { id } = request.params as { id: string };
