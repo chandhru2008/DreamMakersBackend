@@ -8,6 +8,9 @@ export const userRoutes: ServerRoute[] = [
     method: 'GET',
     path: '/me',
     handler: getUserById,
+    options : {
+      auth : false
+    }
   },
   {
     method: 'GET',
