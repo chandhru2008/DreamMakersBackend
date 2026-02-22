@@ -1,5 +1,7 @@
 import { Server } from '@hapi/hapi';
 import Jwt from '@hapi/jwt';
+import { getCache } from '../lib/cache';
+
 
 export const setupJwtAuth = async (server: Server) => {
   await server.register(Jwt);
@@ -14,11 +16,21 @@ export const setupJwtAuth = async (server: Server) => {
       exp: true,
     },
     validate: async (artifacts) => {
+      const { jti, userId } = artifacts.decoded.payload;
+
+      // 1. Check Redis for the Blacklist
+      const isRevoked = await getCache(`blacklist:${jti}`);
+
+      if (isRevoked) {
+        return { isValid: false }; // Request blocked!
+      }
+
+      // 2. If not revoked, let them in
       return {
         isValid: true,
-        credentials: artifacts.decoded.payload,
+        credentials: { userId, jti }
       };
-    },
+    }
   });
 
   server.auth.default('jwt'); // optional

@@ -4,6 +4,7 @@ import { getUserByIdFromDb, createUserInDb, geAlltUserFromDb, getUserByEmail } f
 import { getCache, setCache } from '../lib/cache';
 import { UserSchema } from './userSchema';
 import { IUser } from '../model';
+import argon2 from 'argon2';
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -16,17 +17,62 @@ import {
 } from '../lib/refreshTokenStore';
 
 export const getUserById = async (request: Request, h: ResponseToolkit) => {
+
   const { userId } = request.query;
 
   console.log(userId);
 
-  const user = await getUserByIdFromDb(userId);
+  const user = await getUserByIdFromDb(String(userId));
 
   if (!user) {
     return h.response({ message: 'User not found' }).code(404);
   }
 
   return h.response(user).code(200);
+};
+
+export const getMe = async (request: Request, h: ResponseToolkit) => {
+  // Hapi credentials usually contain the payload from your JWT
+  const { userId } = request.auth.credentials;
+  const cacheKey = `user_profile:${userId}`;
+
+  try {
+    // 1. Try to get data from Redis
+    const cachedUser = await getCache(cacheKey);
+
+    if (cachedUser) {
+      // Parse it if your helper doesn't do it automatically
+      return h.response(cachedUser).code(200);
+    }
+
+    // 2. Cache Miss - Go to Database
+    const user = await getUserByIdFromDb(String(userId));
+
+    if (!user) {
+      return h.response({ message: 'User not found' }).code(404);
+    }
+
+    // 3. Prepare the data (CRITICAL: Always remove password)
+    const { password, ...userResponse } = user;
+
+    // 4. Save to Redis (Write-back)
+    await setCache(cacheKey, JSON.stringify(userResponse), 300);
+
+    return h.response(userResponse).code(200);
+
+  } catch (error) {
+    console.error('Cache or DB error:', error);
+
+    // 5. Fallback logic: Ensure password is STILL removed here
+    const user = await getUserByIdFromDb(String(userId));
+
+    if (user) {
+      const { password, ...userResponse } = user; // Safety first!
+      return h.response(userResponse).code(200);
+    }
+
+    return h.response({ error: 'Internal Server Error' }).code(500);
+  }
 };
 
 export const getAllUsers = async (request: Request, h: ResponseToolkit) => {
@@ -42,24 +88,35 @@ export const getAllUsers = async (request: Request, h: ResponseToolkit) => {
 
 export const createUser = async (request: Request, h: ResponseToolkit) => {
   try {
-    const payValidationResult = UserSchema.safeParse(request.payload);
+    const payloadValidationResult = UserSchema.safeParse(request.payload);
 
-    if (!payValidationResult.success) {
+    if (!payloadValidationResult.success) {
       return h.response({
         message: "Invalid payload",
-        error: payValidationResult.error.issues,
+        error: payloadValidationResult.error.issues,
       }).code(400);
     }
 
-    const user = payValidationResult.data;
+    const userData = payloadValidationResult.data;
 
-    const createdUser = await createUserInDb(user);
+    // 🔒 HASH THE PASSWORD HERE
+    // 'userData.password' is the plain text from the user
+    const hashedPassword = await argon2.hash(userData.password);
 
-    // 🔐 Auto login after registration
-    const accessToken = generateAccessToken({ _id: createdUser.insertedId });
-    const { refreshToken, tokenId } = generateRefreshToken(createdUser.insertedId.toString());
+    // Replace the plain text password with the hashed one
+    const userToSave = {
+      ...userData,
+      password: hashedPassword,
+      createdAt: new Date().toISOString(), // Good practice to add this now
+    };
 
-    await storeRefreshToken(createdUser.insertedId.toString(), tokenId);
+    const createdUser = await createUserInDb(userToSave);
+
+    const userId = createdUser.insertedId.toString();
+    const accessToken = generateAccessToken({ userId });
+    const { refreshToken, tokenId } = generateRefreshToken(userId);
+
+    await storeRefreshToken(userId, tokenId);
 
     return h
       .response({ accessToken })
@@ -67,8 +124,7 @@ export const createUser = async (request: Request, h: ResponseToolkit) => {
         isHttpOnly: true,
         isSecure: process.env.NODE_ENV === 'production',
         isSameSite: 'Strict',
-        path: '/auth/refresh',
-        ttl: 7 * 24 * 60 * 60 * 1000,
+        path: '/', // Set to '/' if you want logout to also be able to clear it
       })
       .code(201);
 
@@ -181,15 +237,43 @@ export const refreshToken = async (
 };
 
 export const logout = async (request: Request, h: ResponseToolkit) => {
+  // 1. Get the Refresh Token from the Cookie
   const refreshToken = request.state.refresh_token;
 
+  // 2. Get the Access Token from the Authorization Header
+  const authHeader = request.headers.authorization;
+  const accessToken = authHeader ? authHeader.split(' ')[1] : null;
+
+  // --- REVOKE REFRESH TOKEN ---
   if (refreshToken) {
-    const { userId, tokenId } = verifyRefreshToken(refreshToken);
-    await revokeRefreshToken(userId, tokenId);
+    try {
+      const { userId, tokenId } = verifyRefreshToken(refreshToken);
+      // This removes the key from Redis so they can't refresh anymore
+      await revokeRefreshToken(userId, tokenId);
+    } catch (err) {
+      // If refresh token is already expired or invalid, we just continue
+    }
+  }
+
+  // --- BLACKLIST ACCESS TOKEN ---
+  if (accessToken) {
+    try {
+      const decoded = request.auth.credentials as { exp: number; jti: string }; // Hapi already decoded this for us
+      const now = Math.floor(Date.now() / 1000);
+      const timeLeft = decoded.exp - now;
+
+      if (timeLeft > 0) {
+        // Store the jti in Redis with a TTL of 'timeLeft'
+        // Format: blacklist:jti_value
+        await setCache(`blacklist:${decoded.jti}`, 'true', timeLeft);
+      }
+    } catch (err) {
+      // Token might already be expired
+    }
   }
 
   return h
-    .response({ message: 'Logged out' })
-    .unstate('refresh_token')
+    .response({ message: 'Logged out successfully' })
+    .unstate('refresh_token') // Clears the cookie
     .code(200);
 };

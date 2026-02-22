@@ -1,13 +1,15 @@
 import redisClient from './redis';
 
-export const storeRefreshToken = async (
-  userId: string,
-  tokenId: string
-) => {
-  const key = `refresh:${userId}:${tokenId}`;
-  await redisClient.set(key, 'valid', { EX: 7 * 24 * 60 * 60 });
-};
+export const storeRefreshToken = async (userId: string, tokenId: string) => {
+  const key = `uid:${userId}:tid:${tokenId}`;
+  const value = JSON.stringify({
+    status: 'active',
+    createdAt: new Date().toISOString()
+  });
 
+  // Store for 7 days (604800 seconds)
+  await redisClient.set(key, value, { EX: 604800 });
+};
 export const isRefreshTokenValid = async (
   userId: string,
   tokenId: string

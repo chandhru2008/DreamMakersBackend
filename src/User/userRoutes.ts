@@ -1,16 +1,13 @@
 
 // users.route.ts
 import { ServerRoute } from '@hapi/hapi';
-import { getUserById, getAllUsers, createUser, getUser, login, refreshToken, logout } from './userController';
+import { getAllUsers, createUser, getUser, login, refreshToken, logout, getMe } from './userController';
 
 export const userRoutes: ServerRoute[] = [
   {
     method: 'GET',
     path: '/me',
-    handler: getUserById,
-    options : {
-      auth : false
-    }
+    handler: getMe, 
   },
   {
     method: 'GET',
