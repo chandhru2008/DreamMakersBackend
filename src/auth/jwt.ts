@@ -7,7 +7,7 @@ export const setupJwtAuth = async (server: Server) => {
   await server.register(Jwt);
 
   server.auth.strategy('jwt', 'jwt', {
-    keys: process.env.JWT_SECRET!,
+    keys: process.env.ACCESS_TOKEN_SECRET!,
     verify: {
       aud: false,
       iss: false,
@@ -16,6 +16,7 @@ export const setupJwtAuth = async (server: Server) => {
       exp: true,
     },
     validate: async (artifacts) => {
+      console.log(artifacts)
       const { jti, userId } = artifacts.decoded.payload;
 
       // 1. Check Redis for the Blacklist
