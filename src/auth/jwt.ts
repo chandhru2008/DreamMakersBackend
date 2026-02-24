@@ -1,12 +1,13 @@
 import { Server } from '@hapi/hapi';
 import Jwt from '@hapi/jwt';
 import { getCache } from '../lib/cache';
-
+import { isRefreshTokenValid } from "../lib/refreshTokenStore"
 
 export const setupJwtAuth = async (server: Server) => {
   await server.register(Jwt);
 
-  server.auth.strategy('jwt', 'jwt', {
+  // --- Strategy 1: Access Token (Standard API Auth) ---
+  server.auth.strategy('jwt-access', 'jwt', {
     keys: process.env.ACCESS_TOKEN_SECRET!,
     verify: {
       aud: false,
@@ -16,23 +17,36 @@ export const setupJwtAuth = async (server: Server) => {
       exp: true,
     },
     validate: async (artifacts) => {
-      console.log(artifacts)
       const { jti, userId } = artifacts.decoded.payload;
 
-      // 1. Check Redis for the Blacklist
+      // Check Redis Blacklist
       const isRevoked = await getCache(`blacklist:${jti}`);
+      if (isRevoked) return { isValid: false };
 
-      if (isRevoked) {
-        return { isValid: false }; // Request blocked!
-      }
-
-      // 2. If not revoked, let them in
-      return {
-        isValid: true,
-        credentials: { userId, jti }
-      };
+      return { isValid: true, credentials: { userId, jti } };
     }
   });
 
-  server.auth.default('jwt'); // optional
+  // --- Strategy 2: Refresh Token (Specifically for the /refresh route) ---
+  server.auth.strategy('jwt-refresh', 'jwt', {
+    keys: process.env.REFRESH_TOKEN_SECRET!,
+    urlKey: false,
+    cookieKey: 'refresh_token', // Hapi automatically extracts from cookie
+    verify: {
+      nbf: true,
+      exp: true,
+    },
+    validate: async (artifacts: { decoded: { payload: { userId: any; tokenId: any; }; }; }) => {
+      const { userId, tokenId } = artifacts.decoded.payload;
+
+      // Use your custom logic to check if this tokenId is still valid in Redis
+      const valid = await isRefreshTokenValid(userId, tokenId);
+      if (!valid) return { isValid: false };
+
+      return { isValid: true, credentials: { userId, tokenId } };
+    }
+  });
+
+  // Default to access token for all routes
+  server.auth.default('jwt-access');
 };

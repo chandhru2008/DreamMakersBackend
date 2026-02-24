@@ -7,7 +7,7 @@ export const userRoutes: ServerRoute[] = [
   {
     method: 'GET',
     path: '/me',
-    handler: getMe, 
+    handler: getMe,
   },
   {
     method: 'GET',
@@ -37,6 +37,9 @@ export const userRoutes: ServerRoute[] = [
     method: 'POST',
     path: '/refresh',
     handler: refreshToken,
+    options: {
+      auth: 'jwt-refresh' // This route specifically requires the refresh token cookie
+    }
   },
   {
     method: 'POST',
