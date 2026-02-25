@@ -30,9 +30,10 @@ export const setupJwtAuth = async (server: Server) => {
   // --- Strategy 2: Refresh Token (Specifically for the /refresh route) ---
   server.auth.strategy('jwt-refresh', 'jwt', {
     keys: process.env.REFRESH_TOKEN_SECRET!,
-    urlKey: false,
-    cookieKey: 'refresh_token', // Hapi automatically extracts from cookie
     verify: {
+      aud: false,
+      iss: false,
+      sub: false,
       nbf: true,
       exp: true,
     },

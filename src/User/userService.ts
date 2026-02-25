@@ -22,5 +22,13 @@ export const getUserByEmail = async (email: string) => {
 
 export const createUserInDb = async (user: any) => {
   const db = getDb();
-  return db.collection('Users').insertOne(user);
+  try {
+    return await db.collection('Users').insertOne(user);
+  } catch (error: any) {
+    if (error.code === 11000) {
+      // We throw a specific string so the handler can identify it easily
+      throw new Error('DUPLICATE_EMAIL');
+    }
+    throw error;
+  }
 };
