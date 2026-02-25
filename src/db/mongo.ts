@@ -10,19 +10,27 @@ let client: MongoClient;
 let db: Db;
 
 export const connectMongo = async (): Promise<Db> => {
-  if (db) {
-    return db; // reuse existing connection
-  }
-  console.log('🔌 Connecting to MongoDB...', db);
+  if (db) return db;
+
+  console.log('🔌 Connecting to MongoDB...');
   client = new MongoClient(uri);
   await client.connect();
-
   db = client.db(dbName);
   console.log('✅ MongoDB connected');
-  
+
+  // --- NEW: Create the unique index here ---
+  try {
+    await db.collection('Users').createIndex(
+      { email: 1 },
+      { unique: true }
+    );
+    console.log('💎 Unique index on "email" ensured');
+  } catch (error: any) {
+    // If you have duplicates already, this will fail
+    console.error('⚠️ Could not create index (check for existing duplicates):', error.message);
+  }
   return db;
 };
-
 export const getDb = (): Db => {
   if (!db) {
     throw new Error('❌ Database not initialized');
