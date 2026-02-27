@@ -3,48 +3,56 @@ import { Request, ResponseToolkit } from '@hapi/hapi';
 import { verifyGoogleIdToken } from './googleService';
 import { getUserByEmail, createUserInDb } from '../user/userService';
 import {
-    generateAccessToken,
-    generateRefreshToken,
+  generateAccessToken,
+  generateRefreshToken,
 } from '../lib/token';
 import { storeRefreshToken } from '../lib/refreshTokenStore';
 
 export const googleLogin = async (request: Request, h: ResponseToolkit) => {
-    const { idToken } = request.payload as { idToken: string };
+  const { idToken } = request.payload as { idToken?: string };
 
-    if (!idToken) {
-        return h.response({ message: 'idToken is required' }).code(400);
-    }
+  if (!idToken) {
+    return h.response({ message: 'idToken is required' }).code(400);
+  }
 
-    const googleUser = await verifyGoogleIdToken(idToken);
+  // 1️⃣ Verify Google token
+  const googleUser = await verifyGoogleIdToken(idToken);
+  const { email, name, googleId } = googleUser;
 
-    let user = await getUserByEmail(googleUser.email);
+  // 2️⃣ Find or create user
+  let user = await getUserByEmail(email);
 
-    if (!user) {
-        const insertResult = await createUserInDb({
-            _id: undefined,
-            email: googleUser.email,
-            name: googleUser.name,
-            provider: 'google',
-            googleId: googleUser.googleId,
-        });
-        user = await getUserByEmail(googleUser.email);
-    }
+  if (!user) {
+    user = await createUserInDb({
+      email,
+      name,
+      provider: 'google',
+      googleId,
+    });
+  }
 
-    const userId = user?._id.toString();
+  if (!user?._id) {
+    return h.response({ message: 'User creation failed' }).code(500);
+  }
 
-    const accessToken = generateAccessToken({ userId });
-    const { refreshToken, tokenId } = generateRefreshToken(userId!);
+  const userId = user._id.toString();
 
-    await storeRefreshToken(userId!, tokenId);
+  // 3️⃣ Generate tokens
+  const accessToken = generateAccessToken({ userId });
+  const { refreshToken, tokenId } = generateRefreshToken(userId);
 
-    return h
-        .response({ accessToken })
-        .state('refresh_token', refreshToken, {
-            isHttpOnly: true,
-            isSecure: process.env.NODE_ENV === 'production',
-            isSameSite: 'Strict',
-            path: '/auth/refresh',
-            ttl: 7 * 24 * 60 * 60 * 1000,
-        })
-        .code(200);
+  // 4️⃣ Store refresh token reference
+  await storeRefreshToken(userId, tokenId);
+
+  // 5️⃣ Send response
+  return h
+    .response({ accessToken })
+    .state('refresh_token', refreshToken, {
+      isHttpOnly: true,
+      isSecure: process.env.NODE_ENV === 'production',
+      isSameSite: 'Strict',
+      path: '/auth/refresh',
+      ttl: 7 * 24 * 60 * 60 * 1000, // 7 days
+    })
+    .code(200);
 };
