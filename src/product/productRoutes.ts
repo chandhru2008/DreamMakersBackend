@@ -1,7 +1,7 @@
 import { ServerRoute } from '@hapi/hapi';
 import * as ProductController from './productController'
 
-export const productRoutes : ServerRoute[] = [
+export const productRoutes: ServerRoute[] = [
   {
     method: 'POST',
     path: '/products',
@@ -11,11 +11,17 @@ export const productRoutes : ServerRoute[] = [
     method: 'GET',
     path: '/products',
     handler: ProductController.getProducts,
+    options: {
+      auth: false
+    }
   },
   {
     method: 'GET',
     path: '/products/{id}',
     handler: ProductController.getProduct,
+    options : {
+      auth : false
+    }
   },
   {
     method: 'PUT',

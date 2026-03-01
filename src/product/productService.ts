@@ -18,9 +18,14 @@ export const createProduct = async (product: IProduct) => {
 };
 
 /** Get all products */
-export const getAllProducts = async () => {
+export const getAllProducts = async (skip : number, take : number) => {
   const db = getDb();
-  return db.collection<IProduct>(COLLECTION).find({}).toArray();
+
+  return db.collection<IProduct>(COLLECTION)
+    .find({})
+    .skip(skip)   // Tell DB how many to jump over
+    .limit(take)  // Tell DB how many to return
+    .toArray();
 };
 
 /** Get product by ID */

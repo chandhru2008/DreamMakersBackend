@@ -1,4 +1,5 @@
 import { IProduct } from '../model';
+import { PaginationSchema } from './productSchema';
 import * as ProductService from './productService'
 import { Request, ResponseToolkit } from '@hapi/hapi';
 
@@ -11,8 +12,24 @@ export const createProduct = async (request: Request, h: ResponseToolkit) => {
 };
 
 /** GET /products */
-export const getProducts = async () => {
-    return ProductService.getAllProducts();
+export const getProducts = async (request: Request, h: ResponseToolkit) => {
+    // 1. Validate the query parameters safely
+    const validation = PaginationSchema.safeParse(request.query);
+
+    // 2. If validation fails, return 400 immediately
+    if (!validation.success) {
+        return h.response({ 
+            message: "Invalid pagination parameters", 
+            errors: validation.error.issues 
+        }).code(400).takeover(); 
+        // .takeover() ensures Hapi stops processing and sends this response
+    }
+
+    // 3. Destructure the typed data from the successful validation
+    const { skip, take } = validation.data;
+
+    // 4. Pass the guaranteed numbers to your service
+    return ProductService.getAllProducts(skip, take);
 };
 
 /** GET /products/{id} */
