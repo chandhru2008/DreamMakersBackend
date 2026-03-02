@@ -23,6 +23,12 @@ export const getUserByEmail = async (email: string) => {
 export const createUserInDb = async (user: any) => {
   const db = getDb();
   try {
+    const normalizedEmail = user.email.toLowerCase();
+
+    user = {
+      ...user,
+      email: normalizedEmail
+    };
     return await db.collection('Users').insertOne(user);
   } catch (error: any) {
     if (error.code === 11000) {
