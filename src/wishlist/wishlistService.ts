@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
-import { getDb } from '../db/mongo';
-import { IWishlist } from '../model';
+import { getDb } from '../db/mongo.ts';
+import { IWishlist } from '../model.ts';
 
 export const addProductToWishlist = async (
   userId: string,

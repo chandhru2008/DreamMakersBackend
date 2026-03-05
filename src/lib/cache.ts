@@ -1,4 +1,4 @@
-import redisClient from './redis';
+import redisClient from './redis.ts';
 
 export const getCache = async <T>(key: string): Promise<T | null> => {
   const data = await redisClient.get(key);

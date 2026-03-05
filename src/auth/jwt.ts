@@ -1,7 +1,7 @@
 import { Server } from '@hapi/hapi';
 import Jwt from '@hapi/jwt';
-import { getCache } from '../lib/cache';
-import { isRefreshTokenValid } from "../lib/refreshTokenStore"
+import { getCache } from '../lib/cache.ts';
+import { isRefreshTokenValid } from "../lib/refreshTokenStore.ts"
 
 export const setupJwtAuth = async (server: Server) => {
   await server.register(Jwt);

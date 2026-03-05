@@ -1,7 +1,7 @@
 
 // users.route.ts
 import { ServerRoute } from '@hapi/hapi';
-import { getAllUsers, createUser, login, refreshToken, logout, getMe } from './userController';
+import { getAllUsers, createUser, login, refreshToken, logout, getMe } from './userController.ts';
 
 export const userRoutes: ServerRoute[] = [
   {

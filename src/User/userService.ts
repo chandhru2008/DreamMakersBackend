@@ -1,4 +1,4 @@
-import { getDb } from "../db/mongo";
+import { getDb } from "../db/mongo.js";
 import { ObjectId } from 'mongodb';
 
 export const geAlltUserFromDb = async () => {

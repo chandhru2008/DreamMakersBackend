@@ -1,12 +1,12 @@
 // src/auth/googleController.ts
 import { Request, ResponseToolkit } from '@hapi/hapi';
-import { verifyGoogleIdToken } from './googleService';
-import { getUserByEmail, createUserInDb } from '../user/userService';
+import { verifyGoogleIdToken } from './googleService.ts';
+import { getUserByEmail, createUserInDb } from '../user/userService.js';
 import {
   generateAccessToken,
   generateRefreshToken,
-} from '../lib/token';
-import { storeRefreshToken } from '../lib/refreshTokenStore';
+} from '../lib/token.ts';
+import { storeRefreshToken } from '../lib/refreshTokenStore.ts';
 
 export const googleLogin = async (request: Request, h: ResponseToolkit) => {
   const { idToken } = request.payload as { idToken?: string };
