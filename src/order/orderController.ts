@@ -4,8 +4,8 @@ import {
     createOrder,
     getOrderById,
     getOrdersByUser,
-} from './orderService';
-import { CreateOrderPayload } from './orderTypes';
+} from './orderService.ts';
+import { CreateOrderPayload } from './orderTypes.ts';
 
 /**
  * Create order

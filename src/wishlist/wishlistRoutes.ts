@@ -3,7 +3,7 @@ import {
   addToWishlist,
   removeFromWishlist,
   getWishlist
-} from './wishlistController';
+} from './wishlistController.ts';
 
 export const wishlistRoutes : ServerRoute[] = [
   {

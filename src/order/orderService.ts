@@ -1,8 +1,8 @@
 // src/order/orderService.ts
 import { ObjectId } from 'mongodb';
-import { getDb } from '../db/mongo';
-import { CreateOrderPayload } from './orderTypes';
-import { IOrder } from '../model';
+import { getDb } from '../db/mongo.ts';
+import { CreateOrderPayload } from './orderTypes.ts';
+import { IOrder } from '../model.ts';
 
 const ORDER_COLLECTION = 'Orders';
 
