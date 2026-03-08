@@ -1,13 +1,13 @@
 import Hapi from '@hapi/hapi';
 import dotenv from 'dotenv';
-import { userRoutes } from './user/userRoutes';
-import { connectMongo } from './db/mongo';
-import { productRoutes } from './product/productRoutes';
-import { connectRedis } from './lib/redis';
-import { googleRoutes } from './auth/googleRoutes';
-import { orderRoutes } from './order/orderRoutes';
-import { wishlistRoutes } from './wishlist/wishlistRoutes';
-import { setupJwtAuth } from './auth/jwt';
+import { userRoutes } from './user/userRoutes.ts';
+import { connectMongo } from './db/mongo.ts';
+import { productRoutes } from './product/productRoutes.ts';
+import { connectRedis } from './lib/redis.ts';
+import { googleRoutes } from './auth/googleRoutes.ts';
+import { orderRoutes } from './order/orderRoutes.ts';
+import { wishlistRoutes } from './wishlist/wishlistRoutes.ts';
+import { setupJwtAuth } from './auth/jwt.ts';
 dotenv.config();
 
 const init = async (): Promise<void> => {
