@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "��#\u0000 \u0000D\u0000r\u0000e\u0000a\u0000m\u0000M\u0000a\u0000k\u0000e\u0000r\u0000s\u0000B\u0000a\u0000c\u0000k\u0000e\u0000n\u0000d\u0000\r\u0000 \u0000",
   "main": "index.js",
-  "scripts": {
-    "dev": "nodemon --exec ts-node src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js"
-  },
+    "scripts": {
+      "dev": "ts-node -P tsconfig.dev.json src/server.ts",
+      "build": "tsc",
+      "start": "node dist/server.js"
+    },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/chandhru2008/DreamMakersBackend.git"
