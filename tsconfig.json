@@ -9,8 +9,6 @@
     "module": "nodenext",
     "target": "esnext",
     "types": [],
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -36,8 +34,8 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "rootDir": "src",
-    "outDir": "dist",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "esModuleInterop": true
   }
 }
