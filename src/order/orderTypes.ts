@@ -1,5 +1,5 @@
 // src/order/orderTypes.ts
-import { IProduct } from '../model.ts';
+import { IProduct } from '../model.js';
 
 export interface CreateOrderPayload {
   products: {

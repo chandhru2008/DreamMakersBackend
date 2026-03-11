@@ -1,10 +1,10 @@
 import { Request, ResponseToolkit } from '@hapi/hapi';
-import { getUserByIdFromDb, createUserInDb, geAlltUserFromDb, getUserByEmail } from './userService.ts';
-import { getCache, setCache } from '../lib/cache.ts';
-import { UserSchema } from './userSchema.ts';
+import { getUserByIdFromDb, createUserInDb, geAlltUserFromDb, getUserByEmail } from './userService.js';
+import { getCache, setCache } from '../lib/cache.js';
+import { UserSchema } from './userSchema.js';
 import argon2 from 'argon2';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../lib/token.ts';
-import { isRefreshTokenValid, revokeRefreshToken, storeRefreshToken } from '../lib/refreshTokenStore.ts';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../lib/token.js';
+import { isRefreshTokenValid, revokeRefreshToken, storeRefreshToken } from '../lib/refreshTokenStore.js';
 
 // Helper for consistent Cookie settings
 const COOKIE_OPTIONS = {

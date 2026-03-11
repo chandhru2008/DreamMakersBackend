@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { getDb } from '../db/mongo.ts'
+import { getDb } from '../db/mongo.js'
 import { IProduct } from '../model.js';
 
 const COLLECTION = 'products';

@@ -1,6 +1,6 @@
 // src/auth/googleRoutes.ts
 import { ServerRoute } from '@hapi/hapi';
-import { googleLogin } from './googleController.ts';
+import { googleLogin } from './googleController.js';
 
 export const googleRoutes: ServerRoute[] = [
   {

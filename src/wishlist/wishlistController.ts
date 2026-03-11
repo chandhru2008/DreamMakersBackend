@@ -3,7 +3,7 @@ import {
   addProductToWishlist,
   removeProductFromWishlist,
   fetchWishlist
-} from './wishlistService.ts';
+} from './wishlistService.js';
 
 export const addToWishlist = async (request: Request, h: ResponseToolkit) => {
   const userId = request.auth.credentials._id as string;
