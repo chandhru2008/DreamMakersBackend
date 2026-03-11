@@ -1,4 +1,4 @@
-import redisClient from './redis.ts';
+import redisClient from './redis.js';
 
 export const storeRefreshToken = async (userId: string, tokenId: string) => {
   const key = `uid:${userId}:tid:${tokenId}`;

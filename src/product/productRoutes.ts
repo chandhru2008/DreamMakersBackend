@@ -1,5 +1,5 @@
 import { ServerRoute } from '@hapi/hapi';
-import * as ProductController from './productController.ts'
+import * as ProductController from './productController.js'
 
 export const productRoutes: ServerRoute[] = [
   {

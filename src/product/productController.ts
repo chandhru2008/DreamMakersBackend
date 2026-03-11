@@ -1,6 +1,6 @@
-import { IProduct } from '../model.ts';
-import { PaginationSchema } from './productSchema.ts';
-import * as ProductService from './productService.ts'
+import { IProduct } from '../model.js';
+import { PaginationSchema } from './productSchema.js';
+import * as ProductService from './productService.js'
 import { Request, ResponseToolkit } from '@hapi/hapi';
 
 

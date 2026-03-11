@@ -4,7 +4,7 @@ import {
   createOrderController,
   getOrderByIdController,
   getMyOrdersController,
-} from './orderController.ts';
+} from './orderController.js';
 
 export const orderRoutes: ServerRoute[] = [
   {
