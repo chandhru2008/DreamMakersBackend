@@ -14,9 +14,11 @@ const init = async (): Promise<void> => {
 
   await connectRedis();
 
+  const isDev = process.env.NODE_ENV === "development";
+
   const server = Hapi.server({
-    port: 3000,
-    host: 'localhost',
+    port: process.env.PORT || 3000,
+    host: isDev ? "localhost" : "0.0.0.0",
   });
 
   await setupJwtAuth(server)
