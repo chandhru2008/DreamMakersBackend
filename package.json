@@ -6,7 +6,7 @@
     "scripts": {
       "dev": "node --loader ts-node/esm --no-warnings --experimental-specifier-resolution=node src/server.ts",
       "build": "tsc",
-      "start": "node dist/server.ts"
+      "start": "node dist/server.js"
     },
   "repository": {
     "type": "git",
