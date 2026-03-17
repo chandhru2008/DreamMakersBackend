@@ -89,27 +89,24 @@ export const login = async (request: Request, h: ResponseToolkit) => {
 };
 
 export const refreshToken = async (request: Request, h: ResponseToolkit) => {
-  const oldToken = request.state.refresh_token;
-  if (!oldToken) return h.response({ message: 'Missing refresh token' }).code(401);
+  // 1. Get credentials directly from Hapi Auth (already verified by your strategy!)
+  const { userId, tokenId } = request.auth.credentials as { userId: string; tokenId: string };
 
   try {
-    const { userId, tokenId } = verifyRefreshToken(oldToken);
-    const isValid = await isRefreshTokenValid(userId, tokenId);
-
-    if (!isValid) return h.response({ message: 'Invalid refresh token' }).code(401);
-
-    // Rotate tokens (Delete old, create new)
+    // 2. Rotate tokens (Delete old, create new)
     await revokeRefreshToken(userId, tokenId);
 
     const newAccessToken = generateAccessToken({ userId });
     const { refreshToken: newRefreshToken, tokenId: newTokenId } = generateRefreshToken(userId);
+    
     await storeRefreshToken(userId, newTokenId);
 
     return h.response({ accessToken: newAccessToken })
       .state('refresh_token', newRefreshToken, COOKIE_OPTIONS)
       .code(200);
   } catch (err) {
-    return h.response({ message: 'Invalid refresh token' }).code(401);
+    // This catch is now only for unexpected database/redis errors
+    return h.response({ message: 'Internal Server Error' }).code(500);
   }
 };
 
