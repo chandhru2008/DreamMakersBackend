@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { getDb } from '../db/mongo.js'
+import { getDb } from '../db/mongo.js';
 import { IProduct } from '../model.js';
 
 const COLLECTION = 'products';
@@ -18,13 +18,14 @@ export const createProduct = async (product: IProduct) => {
 };
 
 /** Get all products */
-export const getAllProducts = async (skip : number, take : number) => {
+export const getAllProducts = async (skip: number, take: number) => {
   const db = getDb();
 
-  return db.collection<IProduct>(COLLECTION)
+  return db
+    .collection<IProduct>(COLLECTION)
     .find({})
-    .skip(skip)   // Tell DB how many to jump over
-    .limit(take)  // Tell DB how many to return
+    .skip(skip) // Tell DB how many to jump over
+    .limit(take) // Tell DB how many to return
     .toArray();
 };
 

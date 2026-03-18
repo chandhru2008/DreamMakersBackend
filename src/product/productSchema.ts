@@ -1,5 +1,4 @@
-import { z } from "zod";
-
+import { z } from 'zod';
 
 export const PaginationSchema = z.object({
   // coerce automatically converts "10" (string) to 10 (number)

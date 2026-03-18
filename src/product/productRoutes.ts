@@ -1,5 +1,5 @@
 import { ServerRoute } from '@hapi/hapi';
-import * as ProductController from './productController.js'
+import * as ProductController from './productController.js';
 
 export const productRoutes: ServerRoute[] = [
   {
@@ -12,16 +12,16 @@ export const productRoutes: ServerRoute[] = [
     path: '/products',
     handler: ProductController.getProducts,
     options: {
-      auth: false
-    }
+      auth: false,
+    },
   },
   {
     method: 'GET',
     path: '/products/{id}',
     handler: ProductController.getProduct,
-    options : {
-      auth : false
-    }
+    options: {
+      auth: false,
+    },
   },
   {
     method: 'PUT',

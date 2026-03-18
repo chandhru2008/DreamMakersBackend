@@ -2,10 +2,7 @@
 import { Request, ResponseToolkit } from '@hapi/hapi';
 import { verifyGoogleIdToken } from './googleService.js';
 import { getUserByEmail, createUserInDb } from '../user/userService.js';
-import {
-  generateAccessToken,
-  generateRefreshToken,
-} from '../lib/token.js';
+import { generateAccessToken, generateRefreshToken } from '../lib/token.js';
 import { storeRefreshToken } from '../lib/refreshTokenStore.js';
 
 export const googleLogin = async (request: Request, h: ResponseToolkit) => {

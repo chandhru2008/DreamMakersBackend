@@ -7,8 +7,8 @@ export const googleRoutes: ServerRoute[] = [
     method: 'POST',
     path: '/auth/google',
     handler: googleLogin,
-    options : {
-      auth: false
-    }
+    options: {
+      auth: false,
+    },
   },
 ];

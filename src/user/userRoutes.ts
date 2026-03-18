@@ -1,7 +1,13 @@
-
 // users.route.ts
 import { ServerRoute } from '@hapi/hapi';
-import { getAllUsers, createUser, login, refreshToken, logout, getMe } from './userController.js';
+import {
+  getAllUsers,
+  createUser,
+  login,
+  refreshToken,
+  logout,
+  getMe,
+} from './userController.js';
 
 export const userRoutes: ServerRoute[] = [
   {
@@ -12,23 +18,23 @@ export const userRoutes: ServerRoute[] = [
   {
     method: 'GET',
     path: '/allUsers',
-    handler: getAllUsers
+    handler: getAllUsers,
   },
   {
     method: 'POST',
     path: '/register',
     handler: createUser,
     options: {
-      auth: false
-    }
+      auth: false,
+    },
   },
   {
     method: 'POST',
     path: '/login',
     handler: login,
     options: {
-      auth: false
-    }
+      auth: false,
+    },
   },
 
   {
@@ -36,8 +42,8 @@ export const userRoutes: ServerRoute[] = [
     path: '/refresh',
     handler: refreshToken,
     options: {
-      auth: 'jwt-refresh' // This route specifically requires the refresh token cookie
-    }
+      auth: 'jwt-refresh', // This route specifically requires the refresh token cookie
+    },
   },
   {
     method: 'POST',

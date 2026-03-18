@@ -11,17 +11,16 @@ import { setupJwtAuth } from './auth/jwt.js';
 dotenv.config();
 
 const init = async (): Promise<void> => {
-
   await connectRedis();
 
-  const isDev = process.env.NODE_ENV === "development";
+  const isDev = process.env.NODE_ENV === 'development';
 
   const server = Hapi.server({
     port: process.env.PORT || 3000,
-    host: isDev ? "localhost" : "0.0.0.0",
+    host: isDev ? 'localhost' : '0.0.0.0',
   });
 
-  await setupJwtAuth(server)
+  await setupJwtAuth(server);
 
   server.route(userRoutes);
   server.route(productRoutes);
