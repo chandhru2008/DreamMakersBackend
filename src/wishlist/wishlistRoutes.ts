@@ -2,23 +2,23 @@ import { ServerRoute } from '@hapi/hapi';
 import {
   addToWishlist,
   removeFromWishlist,
-  getWishlist
+  getWishlist,
 } from './wishlistController.js';
 
-export const wishlistRoutes : ServerRoute[] = [
+export const wishlistRoutes: ServerRoute[] = [
   {
     method: 'POST',
     path: '/wishlist',
-    handler: addToWishlist
+    handler: addToWishlist,
   },
   {
     method: 'DELETE',
     path: '/wishlist/{productId}',
-    handler: removeFromWishlist
+    handler: removeFromWishlist,
   },
   {
     method: 'GET',
     path: '/wishlist',
-    handler: getWishlist
-  }
+    handler: getWishlist,
+  },
 ];

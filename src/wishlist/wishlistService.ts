@@ -13,7 +13,7 @@ export const addProductToWishlist = async (
     {
       $addToSet: { products: productId },
       $setOnInsert: { createdAt: new Date() },
-      $set: { updatedAt: new Date() }
+      $set: { updatedAt: new Date() },
     },
     { upsert: true }
   );
@@ -29,12 +29,10 @@ export const removeProductFromWishlist = async (
     { userId: userId },
     {
       $pull: { products: productId },
-      $set: { updatedAt: new Date() }
+      $set: { updatedAt: new Date() },
     }
   );
 };
-
-
 
 export const fetchWishlist = async (userId: string) => {
   const db = getDb();

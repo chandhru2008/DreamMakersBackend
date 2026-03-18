@@ -29,8 +29,8 @@ export const createOrder = async (
   const result = await db.collection(ORDER_COLLECTION).insertOne(order);
 
   return {
-      ...order,
-      _id: result.insertedId.toString(),
+    ...order,
+    _id: result.insertedId.toString(),
   } as unknown as IOrder;
 };
 
@@ -41,7 +41,7 @@ export const getOrderById = async (orderId: string): Promise<IOrder | null> => {
   const db = getDb();
 
   return db.collection(ORDER_COLLECTION).findOne({
-      _id: new ObjectId(orderId),
+    _id: new ObjectId(orderId),
   }) as unknown as IOrder | null;
 };
 
@@ -52,7 +52,7 @@ export const getOrdersByUser = async (userId: string): Promise<IOrder[]> => {
   const db = getDb();
 
   return db
-      .collection(ORDER_COLLECTION)
-      .find({ userId })
-      .toArray() as unknown as IOrder[];
+    .collection(ORDER_COLLECTION)
+    .find({ userId })
+    .toArray() as unknown as IOrder[];
 };

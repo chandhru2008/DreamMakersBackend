@@ -8,8 +8,8 @@ export const verifyGoogleIdToken = async (idToken: string) => {
     throw new Error('Missing GOOGLE_CLIENT_ID environment variable');
   }
   const ticket = await client.verifyIdToken({
-      idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
+    idToken,
+    audience: process.env.GOOGLE_CLIENT_ID,
   });
 
   const payload = ticket.getPayload();

@@ -1,4 +1,4 @@
-import { getDb } from "../db/mongo.js";
+import { getDb } from '../db/mongo.js';
 import { ObjectId } from 'mongodb';
 
 export const geAlltUserFromDb = async () => {
@@ -19,7 +19,6 @@ export const getUserByEmail = async (email: string) => {
   return db.collection('Users').findOne({ email });
 };
 
-
 export const createUserInDb = async (user: any) => {
   const db = getDb();
   try {
@@ -27,7 +26,7 @@ export const createUserInDb = async (user: any) => {
 
     user = {
       ...user,
-      email: normalizedEmail
+      email: normalizedEmail,
     };
     return await db.collection('Users').insertOne(user);
   } catch (error: any) {

@@ -3,16 +3,16 @@ import { randomUUID } from 'crypto';
 import { OAuth2Client } from 'google-auth-library';
 const client = new OAuth2Client(process.env.CLIENT_ID);
 
-export async function verifyToken(idToken : string) {
+export async function verifyToken(idToken: string) {
   const ticket = await client.verifyIdToken({
-      idToken: idToken,
-      audience: process.env.CLIENT_ID!,
+    idToken: idToken,
+    audience: process.env.CLIENT_ID!,
   });
   const payload = ticket.getPayload();
-  
+
   const userId = payload?.['sub'];
-  const email = payload?.['email']
-  
+  const email = payload?.['email'];
+
   return payload;
 }
 
@@ -28,11 +28,9 @@ export const generateAccessToken = (payload: object) => {
 export const generateRefreshToken = (userId: string) => {
   const tokenId = randomUUID();
 
-  const refreshToken = jwt.sign(
-    { userId, tokenId },
-    REFRESH_TOKEN_SECRET,
-    { expiresIn: '7d' }
-  );
+  const refreshToken = jwt.sign({ userId, tokenId }, REFRESH_TOKEN_SECRET, {
+    expiresIn: '7d',
+  });
 
   return { refreshToken, tokenId };
 };

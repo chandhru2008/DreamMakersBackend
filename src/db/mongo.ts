@@ -1,5 +1,5 @@
-import { MongoClient, Db, ServerApiVersion } from "mongodb";
-import dotenv from "dotenv";
+import { MongoClient, Db, ServerApiVersion } from 'mongodb';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -12,36 +12,33 @@ let db: Db;
 export const connectMongo = async (): Promise<Db> => {
   if (db) return db;
 
-  console.log("🔌 Connecting to MongoDB...");
+  console.log('🔌 Connecting to MongoDB...');
 
   client = new MongoClient(uri, {
     serverApi: {
       version: ServerApiVersion.v1,
       strict: true,
-      deprecationErrors: true
-    }
+      deprecationErrors: true,
+    },
   });
 
   await client.connect();
 
   // optional ping check
-  await client.db("admin").command({ ping: 1 });
+  await client.db('admin').command({ ping: 1 });
 
   db = client.db(dbName);
 
-  console.log("✅ MongoDB connected");
+  console.log('✅ MongoDB connected');
 
   // Ensure unique index
   try {
-    await db.collection("Users").createIndex(
-      { email: 1 },
-      { unique: true }
-    );
+    await db.collection('Users').createIndex({ email: 1 }, { unique: true });
 
     console.log('💎 Unique index on "email" ensured');
   } catch (error: any) {
     console.error(
-      "⚠️ Could not create index (check duplicates):",
+      '⚠️ Could not create index (check duplicates):',
       error.message
     );
   }
@@ -51,7 +48,7 @@ export const connectMongo = async (): Promise<Db> => {
 
 export const getDb = (): Db => {
   if (!db) {
-    throw new Error("❌ Database not initialized");
+    throw new Error('❌ Database not initialized');
   }
 
   return db;
