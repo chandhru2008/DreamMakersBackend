@@ -16,7 +16,7 @@ export const setupJwtAuth = async (server: Server) => {
       nbf: true,
       exp: true,
     },
-    validate: async (artifacts : any) => {
+    validate: async (artifacts: any) => {
       const { jti, userId } = artifacts.decoded.payload;
 
       // Check Redis Blacklist
@@ -30,6 +30,9 @@ export const setupJwtAuth = async (server: Server) => {
   // --- Strategy 2: Refresh Token (Specifically for the /refresh route) ---
   server.auth.strategy('jwt-refresh', 'jwt', {
     keys: process.env.REFRESH_TOKEN_SECRET!,
+
+    cookieKey: 'refresh_token', // cookie name
+
     verify: {
       aud: false,
       iss: false,
@@ -37,16 +40,19 @@ export const setupJwtAuth = async (server: Server) => {
       nbf: true,
       exp: true,
     },
+
     validate: async (artifacts: {
       decoded: { payload: { userId: any; tokenId: any } };
     }) => {
       const { userId, tokenId } = artifacts.decoded.payload;
 
-      // Use your custom logic to check if this tokenId is still valid in Redis
       const valid = await isRefreshTokenValid(userId, tokenId);
       if (!valid) return { isValid: false };
 
-      return { isValid: true, credentials: { userId, tokenId } };
+      return {
+        isValid: true,
+        credentials: { userId, tokenId },
+      };
     },
   });
 
