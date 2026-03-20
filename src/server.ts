@@ -22,12 +22,15 @@ const init = async (): Promise<void> => {
 
   await setupJwtAuth(server);
 
-  server.route(userRoutes);
-  server.route(productRoutes);
-  server.route(googleRoutes);
-  server.route(orderRoutes);
-  server.route(wishlistRoutes);
+  const routes = [
+    ...userRoutes,
+    ...productRoutes,
+    ...googleRoutes,
+    ...orderRoutes,
+    ...wishlistRoutes,
+  ];
 
+  server.route(routes);
   await connectMongo();
 
   await server.start();
