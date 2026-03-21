@@ -1,6 +1,3 @@
-// src/order/orderTypes.ts
-import { IProduct } from '../model.js';
-
 export interface CreateOrderPayload {
   products: {
     productId: string;
@@ -9,4 +6,3 @@ export interface CreateOrderPayload {
   address: string;
 }
 
-import { ObjectId } from 'mongodb';
