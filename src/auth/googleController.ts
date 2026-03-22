@@ -19,14 +19,14 @@ export const googleLogin = async (request: Request, h: ResponseToolkit) => {
   // 2️⃣ Find or create user
   let user = await getUserByEmail(email);
 
-  // if (!user) {
-  //   user = await createUserInDb({
-  //     email,
-  //     name,
-  //     provider: 'google',
-  //     googleId,
-  //   });
-  // }
+  if (!user) {
+    await createUserInDb({
+      email,
+      name,
+      provider: 'google',
+      googleId,
+    });
+  }
 
   if (!user?._id) {
     return h.response({ message: 'User creation failed' }).code(500);
