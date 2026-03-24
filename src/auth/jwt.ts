@@ -19,10 +19,6 @@ export const setupJwtAuth = async (server: Server) => {
     validate: async (artifacts: any) => {
       const { jti, userId } = artifacts.decoded.payload;
 
-      // Check Redis Blacklist
-      const isRevoked = await getCache(`blacklist:${jti}`);
-      if (isRevoked) return { isValid: false };
-
       return { isValid: true, credentials: { userId, jti } };
     },
   });
