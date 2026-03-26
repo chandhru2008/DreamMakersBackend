@@ -30,8 +30,7 @@ const COOKIE_OPTIONS = {
 
 export const getMe = async (request: Request, h: ResponseToolkit) => {
   const { userId } = request.auth.credentials as { userId: string };
-  const cacheKey = `user_profile:${userId}`;
-
+  const cacheKey = `app:user:profile:${userId}`;
   // 1. Check Cache
   const cachedUser = await getCache(cacheKey);
   if (cachedUser) return h.response(cachedUser).code(200);
